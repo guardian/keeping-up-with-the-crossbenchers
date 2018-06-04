@@ -47,6 +47,8 @@
         "webpack-stream": "^3.2.0"
     },
     "dependencies": {
+        "d3": "^5.4.0",
+        "graph-scroll": "^1.0.2",
         "gulp-rename": "^1.2.2",
         "gulp-replace": "^0.6.1",
         "mustache": "^2.3.0",
