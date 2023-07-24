@@ -6,17 +6,23 @@
 // Uncomment for full screen (including immersive article main media)
 @import "fullscreen";
 @import "share";
+@import "footer";
+
+html {
+	font-size: 100%;
+}
+
 .element-atom,
 .interactive-atom {
     margin: 0 !important;
     
 }
-
 .interactive-background {
 	background-color: #dcdcdc;
 }
 
 .interactive-container {
+
 
     margin: 0 auto;
     box-sizing: border-box;
@@ -33,6 +39,18 @@
             max-width: map-get($mq-breakpoints, $bp);
         }
     }
+
+    a {
+	color:#005689;
+	text-decoration: none !important;
+	border-bottom: 0.0625rem solid #dcdcdc;
+	-webkit-transition: border-color 0.15s ease-out;
+	transition: border-color 0.15s ease-out;
+}
+
+a:hover {
+	border-color: #6e99b3;
+}
 
 	p {
 		font-size:1.1rem;
@@ -64,6 +82,11 @@
 		pointer-events:none;
 	}
 
+	#footer {
+		    margin-top: 100px;
+		    border-top: 1px solid #bebebe;
+	}
+
 	.graphicCol {
 		position: static;
 		bottom:0;
@@ -84,6 +107,10 @@
 		font-size:0.8rem;
 		color:#767676;
 		font-family:'Guardian Text Sans Web', 'Agate Sans', sans-serif;
+	}
+
+	.headerWrapper, .crossbenchPicWrapper {
+		float: left;
 	}
 
 	.tooltip2 {
@@ -144,64 +171,44 @@
 			font-size:1.2rem;
 		}
 		
-		.education {
-			color:#b05cc6;
+		.onenation {
+			border-bottom: 2px solid #1554ca;
 		}
 
-		.housing {
-			color:#5db88b;
+		.xenophon {
+			border-bottom: 2px solid rgb(255, 88, 0);
 		}
 
-		.recreation {
-			color:#527b39;
+		.familyfirst {
+			border-bottom: 2px solid #333333;
 		}
 
-		.transport {
-			color:#c76c65;
+		.liberaldemocrats {
+			border-bottom: 2px solid #1db586;
 		}
 
-		.capital {
-			color:#8a6929;
+		.justiceparty {
+			border-bottom: 2px solid #4a7801;
 		}
 
-		.socialSecurity {
-			color:#59b74b;
+		.lambie {
+			border-bottom: 2px solid #FFA1E1;
 		}
 
-		.socialSpan {
-			border-bottom: 2px solid #59b74b;
+		.conservatives {
+			border-bottom: 2px solid #ff9b0b;
 		}
 
-		.assEnt {
-			border-bottom: 2px solid #fc8d62;
+		.independent {
+			border-bottom: 2px solid #767676;
 		}
 
-		.donor {
-			border-bottom: 2px solid #66c2a5;
+		.katter {
+			border-bottom: 2px solid #5ebfba;
 		}
 
-		.laborParty {
+		.clive {
 			border-bottom: 2px solid #b51800;
-		}
-
-		.liberalParty {
-			border-bottom: 2px solid #005689;
-		}
-
-		.minorParty {
-			border-bottom: 2px solid #767676;
-		}
-
-		.donLink {
-			border-bottom: 2px solid #b82266;
-		}
-
-		.mixed {
-			border-bottom: 2px solid #767676;
-		}
-
-		.otherReceipt {
-			border-bottom: 2px solid #005689;
 		}
 	}
 
@@ -444,6 +451,14 @@
 	@media (max-width: 450px) {
 
 		.mobHide {
+		display: none;
+		}
+
+	}
+
+	@media (max-width: 980px) {
+
+		.crossbenchPicWrapper {
 		display: none;
 		}
 

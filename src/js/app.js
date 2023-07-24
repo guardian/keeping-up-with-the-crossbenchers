@@ -1,7 +1,10 @@
 import * as graphScroll from 'graph-scroll'
 import * as d3 from 'd3'
+import share from './share'
 
-var features,svg,simulation;
+function init() {
+
+	var features,svg,simulation;
 var pageWidth = document.documentElement.clientWidth;
 var pageHeight = document.documentElement.clientHeight;
 var activateFunctions = [];
@@ -15,6 +18,17 @@ var mobile = false;
 var margin = {top: 0, right: 0, bottom: 0, left:0};
 var functionCounter = 0;
 var positionOffset = 50;
+var clive = false;
+
+var shareFn = share('Keeping up with the crossbenchers: all the senate crossbench changes since 2016', 'https://www.theguardian.com/australia-news/ng-interactive/2018/jun/06/keeping-up-with-the-crossbenchers-all-the-senate-changes-since-2016', 'https://media.guim.co.uk/82f45d57e1db5d945bef15ca84b1fe6e47f64ce2/0_6_600_360/600.jpg');
+
+ [].slice.apply(document.querySelectorAll('.interactive-share')).forEach(shareEl => {
+            var network = shareEl.getAttribute('data-network');
+            shareEl.addEventListener('click',() => shareFn(network));
+ });
+
+
+
 
 if (pageWidth < 640) {
 	mobile = true;
@@ -50,6 +64,8 @@ else {
 	height = pageHeight*0.66 - margin.top - margin.bottom;
 }
 
+d3.select("#footer").style("margin-top", height);
+
 if (width > 1260) {
 	width = 1260;
 }
@@ -58,22 +74,23 @@ var scaleFactor = width/1300;
 var divs = d3.selectAll('#sections > div')
 
 divs.each(function (d,i) {
+	if (i < divs.size() -1) {
+		d3.select(this).style("min-height", pageHeight*0.4 + "px")
+	}
 
-	d3.select(this).style("min-height", pageHeight*0.4 + "px")
-	
 });
 
-d3.select('#gv-footer')
-	.style("height", pageHeight*0.70 + "px");
+d3.select('#gv-footer').style("height", pageHeight*0.66 + "px");
 
-var parties = ["Jacqui Lambie Network","One Nation","Liberal Democrats","Family First","Independent","Australian Conservatives","Nick Xenophon Team","Centre Alliance","DH's Justice party"]
-var colours  = ["#FFA1E1","#996633","#666699","#333333","#767676","#ff9b0b","rgb(255, 88, 0)","rgb(255, 88, 0)","#4a7801"]
+var parties = ["Jacqui Lambie Network","One Nation","Liberal Democrats","Family First","Independent","Australian Conservatives","Nick Xenophon Team","Centre Alliance","DH's Justice party","Katter party","United Australia party"]
+var colours  = ["#FFA1E1","#1554ca","#1db586","#333333","#767676","#ff9b0b","rgb(255, 88, 0)","rgb(255, 88, 0)","#4a7801","#5ebfba","#b51800"]
 var img_defs = ["david_leyonhjelm","pauline_hanson","brian_burston","rod_culleton","malcolm_roberts","skye_kakoschke-moore","nick_xenophon","stirling_griff","bob_day","jacqui_lambie","peter_georgiou","lucy_gichuhi","cory_bernardi","fraser_anning","rex_patrick","steve_martin","tim_storer","derryn_hinch"]
-
 
 var color = d3.scaleOrdinal()
 				.domain(parties)
 				.range(colours);
+
+d3.select('#graphic svg').remove();
 
 svg = d3.select("#graphic").append("svg")
 				.attr("width", width - margin.left - margin.right)
@@ -165,6 +182,15 @@ features.append("text")
 	.text("Family First");
 
 features.append("text")
+	.attr("x", 4*fifth)
+	.attr("y", height * 0.2)
+	.attr("text-anchor","middle")
+	.attr("class", "label")
+	.attr("id","label8")
+	.attr("opacity",0)
+	.text("United Australia party");	
+
+features.append("text")
 	.attr("x", fifth)
 	.attr("y", height * 0.55)
 	.attr("text-anchor","middle")
@@ -242,15 +268,14 @@ features.append("rect")
 	.attr("fill", "#bdbdbd")	
 
 // 'https://interactive.guim.co.uk/docsdata/14r3QSC0ILMwG3ZemlE_QIl_O5Cjgb_qV9L_Njwi9kbo.json'
+// '<%= path %>/assets/' + '14r3QSC0ILMwG3ZemlE_QIl_O5Cjgb_qV9L_Njwi9kbo.json'
 
 Promise.all([
-	d3.json('<%= path %>/assets/' + '14r3QSC0ILMwG3ZemlE_QIl_O5Cjgb_qV9L_Njwi9kbo.json')
+	d3.json('https://interactive.guim.co.uk/docsdata/14r3QSC0ILMwG3ZemlE_QIl_O5Cjgb_qV9L_Njwi9kbo.json')
 ])
 .then((data) =>  {
 	setUpGraphic(data[0].sheets);
 });
-
-
 
 function setUpGraphic(data) {
 
@@ -291,6 +316,8 @@ function setUpGraphic(data) {
 		// console.log("old data",keyedOldData)
 
 		var newData = data['crossbench-groupings'].filter(function(d){ return d.phase == phase; });
+
+		console.log(newData);
 
 		newData.forEach( function (node) {
 			if (phase == 1) {
@@ -396,38 +423,82 @@ function setUpGraphic(data) {
 	 		var fifth = width * 0.20;
 
 	 		if (!mobile) {
-		 		if (d.party === "One Nation") {
 
-		 			return quarter
-		 		}
+	 			if (!clive) {
+	 				if (d.party === "One Nation") {
 
-		 		else if (d.party == "Nick Xenophon Team" || d.party == "Centre Alliance") {
-		 			return 2*quarter
-		 		}
+			 			return quarter
+			 		}
 
-		 		else if (d.party == "Independent" || d.party == "Family First") {
-		 			return 3*quarter
-		 		}
+			 		else if (d.party == "Nick Xenophon Team" || d.party == "Centre Alliance") {
+			 			return 2*quarter
+			 		}
+
+			 		else if (d.party == "Independent" || d.party == "Family First") {
+			 			return 3*quarter
+			 		}
+			 		
+			 		else if (d.party == "Liberal Democrats") {
+			 			return fifth
+			 		}
+
+			 		else if (d.party == "DH's Justice party") {
+			 			return 2*fifth
+			 		}
+
+			 		else if (d.party == "Jacqui Lambie Network" || d.party == "Katter party") {
+			 			return 3*fifth
+			 		}
+
+			 		else if (d.party == "Australian Conservatives") {
+			 			return 4*fifth
+			 		}
+
+			 		else {
+			 			return - 100
+			 		}
+
+	 			}
+
+	 			else {
+	 				if (d.party === "One Nation") {
+
+			 			return fifth
+			 		}
+
+			 		else if (d.party == "Nick Xenophon Team" || d.party == "Centre Alliance") {
+			 			return 2*fifth
+			 		}
+
+			 		else if (d.party == "Independent" || d.party == "Family First") {
+			 			return 3*fifth
+			 		}
+
+			 		else if (d.party == "United Australia party") {
+			 			return 4*fifth
+			 		}
+			 		
+			 		else if (d.party == "Liberal Democrats") {
+			 			return fifth
+			 		}
+
+			 		else if (d.party == "DH's Justice party") {
+			 			return 2*fifth
+			 		}
+
+			 		else if (d.party == "Jacqui Lambie Network" || d.party == "Katter party") {
+			 			return 3*fifth
+			 		}
+
+			 		else if (d.party == "Australian Conservatives") {
+			 			return 4*fifth
+			 		}
+
+			 		else {
+			 			return - 100
+			 		}
+	 			}
 		 		
-		 		else if (d.party == "Liberal Democrats") {
-		 			return fifth
-		 		}
-
-		 		else if (d.party == "DH's Justice party") {
-		 			return 2*fifth
-		 		}
-
-		 		else if (d.party == "Jacqui Lambie Network") {
-		 			return 3*fifth
-		 		}
-
-		 		else if (d.party == "Australian Conservatives") {
-		 			return 4*fifth
-		 		}
-
-		 		else {
-		 			return - 100
-		 		}
 	 		}
 
 	 		else {
@@ -455,6 +526,10 @@ function setUpGraphic(data) {
 		 			return height*0.33
 		 		}
 
+		 		else if (d.party == "United Australia party") {
+		 			return height*0.33
+		 		}
+
 		 		else if (d.party == "Liberal Democrats") {
 		 			return height*0.66
 		 		}
@@ -463,7 +538,7 @@ function setUpGraphic(data) {
 		 			return height*0.66
 		 		}
 
-		 		else if (d.party == "Jacqui Lambie Network") {
+		 		else if (d.party == "Jacqui Lambie Network" || d.party == "Katter party") {
 		 			return height*0.66
 		 		}
 
@@ -501,68 +576,111 @@ function setUpGraphic(data) {
 			.attr("height",height + margin.top + margin.bottom);
 		updateBubbles(1);
 		d3.select("#label3").text("Family First")
+		d3.select("#label3").transition().attr("opacity",1)	
 		d3.select("#label7").transition().attr("opacity",0)
 		d3.select("#label2").text("Xenophon Team")
 	}
 
 	function update2() {
 		updateBubbles(2);
-		d3.select("#label3").text("Independent")
-		d3.select("#label3").transition().attr("opacity",1)
-		d3.select("#label67").transition().attr("opacity",0)
+		d3.select("#label3").transition().attr("opacity",0)
 		d3.select("#label2").text("Xenophon Team")
 		d3.select("#label7").transition().attr("opacity",0)
 	}
+
 	function update3() {
 		updateBubbles(3);
 		d3.select("#label7").transition().attr("opacity",1)
 		d3.select("#label2").text("Xenophon Team")
 	}
+
 	function update4() {
 		updateBubbles(4);	
 		d3.select("#label2").text("Xenophon Team")
+		d3.select("#label3").transition().attr("opacity",0)	
 	}
+
 	function update5() {
 		updateBubbles(5);
+		d3.select("#label3").text("Independent")
+		d3.select("#label3").transition().attr("opacity",1)	
+		d3.select("#label2").text("Xenophon Team")
+	}
+
+	function update6() {
+		updateBubbles(6);	
+		d3.select("#label2").text("Xenophon Team")
+	}
+	function update7() {
+		updateBubbles(7);
 		d3.select("#label2").text("Xenophon Team")
 		d3.select("#label6").transition().attr("opacity",1)
 	}
-	function update6() {
-		updateBubbles(6);
+	function update8() {
+		updateBubbles(8);
 		d3.select("#label2").text("Xenophon Team")
 		d3.select("#label6").transition().attr("opacity",0)
 
 	}
-	function update7() {
-		updateBubbles(7);
+	function update9() {
+		updateBubbles(9);
 		d3.select("#label3").transition().attr("opacity",1)		
 		d3.select("#label2").text("Xenophon Team")
 	}
-	function update8() {
-		updateBubbles(8);	
-		
-		d3.select("#label2").text("Xenophon Team")
-	}
-	function update9() {
-		updateBubbles(9);
-		d3.select("#label2").text("Xenophon Team")	
-	}
 	function update10() {
-		updateBubbles(10);
+		updateBubbles(10);	
+		
 		d3.select("#label2").text("Xenophon Team")
 	}
 	function update11() {
 		updateBubbles(11);
-		d3.select("#label2").text("Centre Alliance")	
+		d3.select("#label2").text("Xenophon Team")	
 	}
 	function update12() {
 		updateBubbles(12);
-		d3.select("#label2").text("Centre Alliance")
+		d3.select("#label2").text("Xenophon Team")
 	}
 	function update13() {
 		updateBubbles(13);
+		d3.select("#label2").text("Centre Alliance")	
+	}
+	function update14() {
+		updateBubbles(14);
 		d3.select("#label2").text("Centre Alliance")
 	}
+	
+	function update15() {
+		updateBubbles(15);
+		d3.select("#label2").text("Centre Alliance")
+		d3.select("#label6").transition().attr("opacity",0)
+		d3.select("#label6").text("Jaqui Lambie Network")
+	}
+
+	function update16() {
+		updateBubbles(16);
+		d3.select("#label6").transition().attr("opacity",1)
+		d3.select("#label6").text("Katter party")
+	}
+
+	function update17() {
+		clive = false;
+		updateBubbles(17);
+		d3.select("#label1").transition().attr("x", quarter)
+		d3.select("#label2").transition().attr("x", 2*quarter)
+		d3.select("#label3").transition().attr("x", 3*quarter)
+		d3.select("#label8").transition().attr("opacity", 0)
+	}
+
+	function update18() {
+		clive = true;
+		updateBubbles(18);
+		d3.select("#label1").transition().attr("x", fifth)
+		d3.select("#label2").transition().attr("x", 2*fifth)
+		d3.select("#label3").transition().attr("x", 3*fifth)
+		d3.select("#label8").transition().attr("opacity", 1)
+	}
+
+
 
 	activateFunctions[0] = update1
 	activateFunctions[1] = update2
@@ -577,6 +695,12 @@ function setUpGraphic(data) {
 	activateFunctions[10] = update11
 	activateFunctions[11] = update12
 	activateFunctions[12] = update13
+	activateFunctions[13] = update14
+	activateFunctions[14] = update15
+	activateFunctions[15] = update16
+	activateFunctions[16] = update17
+	activateFunctions[17] = update18
+
 
 	console.log("top bt", height * 0.33)
 
@@ -584,34 +708,112 @@ function setUpGraphic(data) {
 		.container(d3.select('#container1'))
 		.graph(d3.selectAll('.graphicContainer'))
 		.sections(d3.selectAll('#sections > div'))
-		.offset(height * 0.33 + 10)
+		.offset(height * 0.33 + 50)
 		.on('active', function(i){
 			activateFunctions[i]();
 		});
 
-	var initDivBottom = document.getElementById("graphicCol").getBoundingClientRect().bottom;	
+	var graphicDiv = document.getElementById("graphicCol");
+	
+	var adLabel = document.querySelector("div.ad-slot__label");
+	
+	var initDivBottom = graphicDiv.getBoundingClientRect().bottom;
+
+	if (initDivBottom < 0) {
+		initDivBottom = 1335;
+	}
+	
+	var lastOffset = 100;
+
+	if (mobile) {
+		lastOffset = 50;
+	}
+
+	var lastSection = document.getElementById("lastSection").getBoundingClientRect().top - lastOffset;
+
+
+	console.log("initDivBottom", initDivBottom)
+
+	// function getHeight() {
+	// 	console.log(graphicDiv.style.position)
+
+	// 	if (document.querySelector("div.ad-slot__label") != null && graphicDiv.style.position == 'static') {
+	// 		console.log(document.querySelector("div.ad-slot__label").textContent)
+	// 		initDivBottom = graphicDiv.getBoundingClientRect().bottom;
+	// 		console.log("initDivBottom ", initDivBottom)
+	// 		// window.clearInterval(adChecker)
+		
+	// 	}
+
+	// }
+
+	// var adChecker = window.setInterval(function() {
+		
+	// 	getHeight();
+	
+	// 	}, 1000);
+
+	var firstRun = true;
 
 	window.addEventListener('scroll', function(e) {
 
-	var windowBottom = scrollY + window.innerHeight;
-	var divBottom = scrollY + document.getElementById("graphicCol").getBoundingClientRect().bottom;
+		// if (firstRun) {
+		// 	initDivBottom = document.getElementById("graphicCol").getBoundingClientRect().bottom;
+		// 	firstRun = false;
+		// 	console.log(":what")
+		// 	console.log("initDivBottom: ", initDivBottom)
+		// }	
 
+		if (graphicDiv.style.position == 'static') {
+			initDivBottom = scrollY + document.getElementById("graphicCol").getBoundingClientRect().bottom;
+		}
 
-  	if (windowBottom > divBottom) {
-  		initDivBottom = scrollY + document.getElementById("graphicCol").getBoundingClientRect().bottom;
-  		document.getElementById("graphicCol").setAttribute('style', "position: fixed;");
-  	}
+		var windowBottom = scrollY + window.innerHeight;
 
-  	if (windowBottom <= initDivBottom) {
-  		document.getElementById("graphicCol").setAttribute('style', "position: static;");
-  	}
+		lastSection = document.getElementById("lastSection").getBoundingClientRect().top - lastOffset;
+
+		// console.log("windowBottom", windowBottom)
+		// console.log("lastSection", lastSection)
+
+	  	if (windowBottom > initDivBottom) {
+	  		document.getElementById("graphicCol").setAttribute('style', "position: fixed;");
+	  	}
+
+	  	if (windowBottom <= initDivBottom) {
+	  		document.getElementById("graphicCol").setAttribute('style', "position: static;");
+	  		// console.log("initDivBottom2: ", initDivBottom)
+	  	}
+
+	  	if (lastSection < 0) {
+
+	  		document.getElementById("graphicCol").style.bottom = (-1 * lastSection + "px")
+	  	}
+
+	  	if (lastSection > 0) {
+	  		document.getElementById("graphicCol").style.bottom = ("0px")
+	  	}
+
+	
 	});	
 
-	console.log(document.getElementById("graphicCol").getBoundingClientRect())
-	console.log("headerOffset:",headerOffset)
 
 }
 
 
+}
+
+init();
+
+var to=null
+var lastWidth = document.querySelector(".interactive-container").getBoundingClientRect()
+window.addEventListener('resize', () => {
+  var thisWidth = document.querySelector(".interactive-container").getBoundingClientRect()
+  if (lastWidth != thisWidth) {
+    window.clearTimeout(to);
+    to = window.setTimeout(function() {
+        init();
+    }, 500)
+  }
+})
 
 // var data = d3.csvParse(speciesData);// javascript goes here
